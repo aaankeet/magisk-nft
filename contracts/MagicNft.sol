@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: Unlicensed
 
-pragma solidity ^0.8.19;
+pragma solidity 0.8.15;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
@@ -20,7 +20,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     Additional Features :
     1. Cooldown can be added after each use.
     2. Nft forging may be added Silver + Gold = Platinum ( with more perks).
-    3. Can be used to sponser transcation fee for smart contract wallets (Account abstraction).
+    3. Can be used to sponser transcation fee(paymasters) for smart contract wallets (Account abstraction).
     
 */
 
@@ -33,12 +33,12 @@ contract MagiskNft is ERC1155, Ownable {
     uint8 public constant GOLD_NFT_ID = 1;
 
     // Price for both silver and gold nft
-    uint256 public constant SILVER_PRICE = 1 ether;
-    uint256 public constant GOLD_PRICE = 2 ether;
+    uint256 public constant SILVER_PRICE = 0.003 ether;
+    uint256 public constant GOLD_PRICE = 0.005 ether;
 
     // Use Limit for Silver and Gold Nft
     uint8 public constant SILVER_USE_LIMIT = 5;
-    uint8 public constant GOLD_USE_LIMIT = 10;
+    uint8 public constant GOLD_USE_LIMIT = 8;
 
     // address --> tokenId --> use limit
     // to track user's token use limit
@@ -56,7 +56,7 @@ contract MagiskNft is ERC1155, Ownable {
     // Buy Silver Nft
     function buySilverNFT() public payable {
         require(!hasSilverNft[msg.sender], "Already owns a silver nft");
-        require(msg.value >= SILVER_PRICE, "Insufficient amount");
+        require(msg.value >= SILVER_PRICE, "Incorrect payment amount");
 
         hasSilverNft[msg.sender] = true;
         userNftUseLimit[msg.sender][SILVER_NFT_ID] = SILVER_USE_LIMIT;
@@ -66,8 +66,8 @@ contract MagiskNft is ERC1155, Ownable {
 
     // Buy Gold Nft
     function buyGoldNFT() public payable {
-        require(msg.value == GOLD_PRICE, "Incorrect payment amount");
         require(!hasGoldNft[msg.sender], "Already Owns a Gold Nft");
+        require(msg.value >= GOLD_PRICE, "Incorrect payment amount");
 
         hasGoldNft[msg.sender] = true;
         userNftUseLimit[msg.sender][GOLD_NFT_ID] = GOLD_USE_LIMIT;
@@ -136,7 +136,7 @@ contract MagiskNft is ERC1155, Ownable {
         return
             string(
                 abi.encodePacked(
-                    "https://ipfs.io/ipfs/QmWRE6mBfG8nUUuEXck2MnNoR6pzCzZqGEueH741zKLL8b/",
+                    "https://ipfs.io/ipfs/QmYt6iu4RoDVci5GuGdJTurPB9UcWHwJ72agQaxzTumCgB/",
                     Strings.toString(tokenId),
                     ".json"
                 )
