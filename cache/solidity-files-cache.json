@@ -2,7 +2,7 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/root/nftproject/contracts/EnterMagisk.sol": {
-      "lastModificationDate": 1682613563862,
+      "lastModificationDate": 1682614702822,
       "contentHash": "d658fe783dd76b813f0bc169b9cfa340",
       "sourceName": "contracts/EnterMagisk.sol",
       "solcConfig": {
@@ -39,8 +39,8 @@
       ]
     },
     "/root/nftproject/contracts/MagicNft.sol": {
-      "lastModificationDate": 1682613558002,
-      "contentHash": "4a8255868c19b27c11f3bd855ba02804",
+      "lastModificationDate": 1682625654592,
+      "contentHash": "f99367689eeeb6554be9d53c0095fee6",
       "sourceName": "contracts/MagicNft.sol",
       "solcConfig": {
         "version": "0.8.15",

@@ -33,8 +33,8 @@ contract MagiskNft is ERC1155, Ownable {
     uint8 public constant GOLD_NFT_ID = 1;
 
     // Price for both silver and gold nft
-    uint256 public constant SILVER_PRICE = 0.003 ether;
-    uint256 public constant GOLD_PRICE = 0.005 ether;
+    uint256 public constant SILVER_NFT_PRICE = 0.003 ether;
+    uint256 public constant GOLD_NFT_PRICE = 0.005 ether;
 
     // Use Limit for Silver and Gold Nft
     uint8 public constant SILVER_USE_LIMIT = 5;
@@ -49,30 +49,32 @@ contract MagiskNft is ERC1155, Ownable {
 
     // Events
     event NFTMinted(address account, uint tokenId, uint limitAvailable);
-    event NFTUsed(address indexed user, uint256 id, uint limitAvailable);
+    event NFTUsed(address user, uint256 id, uint limitAvailable);
 
     constructor() ERC1155("") {}
 
     // Buy Silver Nft
-    function buySilverNFT() public payable {
+    function buySilverNft() public payable {
         require(!hasSilverNft[msg.sender], "Already owns a silver nft");
-        require(msg.value >= SILVER_PRICE, "Incorrect payment amount");
+        require(msg.value >= SILVER_NFT_PRICE, "Incorrect payment amount");
 
         hasSilverNft[msg.sender] = true;
         userNftUseLimit[msg.sender][SILVER_NFT_ID] = SILVER_USE_LIMIT;
 
         _mint(msg.sender, SILVER_NFT_ID, 1, "");
+        emit NFTMinted(msg.sender, SILVER_NFT_ID, SILVER_USE_LIMIT);
     }
 
     // Buy Gold Nft
-    function buyGoldNFT() public payable {
+    function buyGoldNft() public payable {
         require(!hasGoldNft[msg.sender], "Already Owns a Gold Nft");
-        require(msg.value >= GOLD_PRICE, "Incorrect payment amount");
+        require(msg.value >= GOLD_NFT_PRICE, "Incorrect payment amount");
 
         hasGoldNft[msg.sender] = true;
         userNftUseLimit[msg.sender][GOLD_NFT_ID] = GOLD_USE_LIMIT;
 
         _mint(msg.sender, GOLD_NFT_ID, 1, "");
+        emit NFTMinted(msg.sender, GOLD_NFT_ID, GOLD_USE_LIMIT);
     }
 
     function useNFT(uint8 tokenId) public {
