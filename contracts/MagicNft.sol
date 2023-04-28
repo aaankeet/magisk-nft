@@ -48,8 +48,8 @@ contract MagiskNft is ERC1155, Ownable {
     mapping(address => bool) public hasGoldNft;
 
     // Events
-    event NFTMinted(address account, uint tokenId, uint limitAvailable);
-    event NFTUsed(address user, uint256 id, uint limitAvailable);
+    event NFTMinted(address indexed account, uint tokenId, uint limitAvailable);
+    event NFTUsed(address indexed account, uint tokenId, uint limitAvailable);
 
     constructor() ERC1155("") {}
 
