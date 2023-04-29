@@ -4,6 +4,7 @@ import { RainbowKitProvider, getDefaultWallets } from '@rainbow-me/rainbowkit';
 import { createClient, configureChains, WagmiConfig } from 'wagmi';
 import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { shardeumSphinx } from 'wagmi/chains';
+import Header from './components/Header.jsx';
 
 const { chains, provider } = configureChains(
   [shardeumSphinx],

@@ -1,27 +1,53 @@
 import React from 'react';
+import Header from './components/Header';
 
 function Lounge() {
+  const handleSumbit = () => {
+    document.getElementById('submitBtn').addEventListener('click', function () {
+      window.location.href = '/Lounge/chillspace';
+    });
+  };
+
   return (
     <div>
-      <h1 className='justify-center text-white'>
-        Join the Exclusive NFT Holder Lounge for Web3 Discussions and Networking
-      </h1>
-      <p className='text-white justify-center'>
-        Are you a proud NFT holder looking to connect with like-minded
-        individuals in the Web3 space? Look no further than our exclusive NFT
-        Holder Lounge, where you can join fellow enthusiasts to discuss the
-        latest trends, share ideas, and network with one another. As a member of
-        our Lounge, you'll have access to a private and secure environment where
-        you can chat in real-time, participate in group discussions, and join
-        exclusive events hosted by our community members. Whether you're a
-        seasoned Web3 expert or just starting out, our Lounge is the perfect
-        place to engage with other NFT holders and grow your network. Joining
-        the Lounge is easy - simply verify your NFT ownership and gain access to
-        our thriving community of Web3 enthusiasts. Don't miss out on this
-        exclusive opportunity to connect with some of the most passionate and
-        knowledgeable individuals in the space. Join the NFT Holder Lounge today
-        and take your Web3 journey to the next level.
-      </p>
+      <Header />
+      <div>
+        <h1 className='head_text pb-3 '>Welcome to the Lounge</h1>
+
+        <h2 className='desc mt-2'>
+          Join the Exclusive NFT Holder Lounge for Web3 Discussions and
+          Networking
+        </h2>
+        <p className='desc justify-center text-center text-sm pt-3'>
+          Are you a proud NFT holder looking to connect with like-minded <br />
+          individuals in the Web3 space? Look no further than our exclusive NFT
+          Holder Lounge,
+          <br /> where you can join fellow enthusiasts to discuss the latest
+          trends, share ideas, and network with one another.
+        </p>
+        <br />
+
+        <div className='flex text-white justify-evenly mt-10 pt-14'>
+          <h1 className=' text-4xl font-LeagueSpartan'>Chat</h1>
+          <h1 className='text-4xl font-LeagueSpartan'>Connect</h1>
+          <h1 className='text-4xl font-LeagueSpartan'>Level-Up</h1>
+        </div>
+        <div className='flex justify-center items-center pr-20 pt-8 pl-6'>
+          <button
+            id='submitBtn'
+            type='submit'
+            className='btn'
+            onClick={handleSumbit}
+          >
+            Enter Lounge
+          </button>
+        </div>
+
+        <h2 className='desc justify-center text-center text-sm mt-5'>
+          Join the NFT Holder Lounge today and take your Web3 journey to the
+          next level.
+        </h2>
+      </div>
     </div>
   );
 }

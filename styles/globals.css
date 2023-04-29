@@ -1,3 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=League+Spartan:wght@500;600;700;800&family=Oswald:wght@700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.head_text {
+  @apply mt-20 text-6xl font-extrabold leading-[1.15] sm:text-7xl text-center antialiased;
+  @apply bg-gradient-to-r from-amber-500 via-orange-600 to-yellow-500 bg-clip-text text-transparent;
+}
+
+.desc {
+  @apply text-xl text-white font-LeagueSpartan text-center antialiased;
+}
+
+.boxshadow {
+  box-shadow: 0 0 5px #03e9f4, 0 0 25px #03e9f4, 0 0 50px #03e9f4, 0 0 100px;
+}
+.btn {
+  @apply text-[#03e9f4] uppercase tracking-[4px] text-[16px] border-2 border-[#03e9f4] px-[22px]
+    py-[7px] rounded;
+}
+.btn:hover {
+  @apply text-white  bg-[#03e9f4] boxshadow;
+}
