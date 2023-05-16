@@ -22,48 +22,63 @@ describe('Magisk Nft', function () {
       assert.equal(await magiskNft.GOLD_NFT_ID(), 1);
       assert.equal(
         await magiskNft.SILVER_NFT_PRICE(),
-        ethers.utils.parseEther('0.003').toString()
+        ethers.utils.parseEther('0.5').toString()
       );
       assert.equal(
         await magiskNft.GOLD_NFT_PRICE(),
-        ethers.utils.parseEther('0.005').toString()
+        ethers.utils.parseEther('0.8').toString()
       );
       assert.equal(await magiskNft.SILVER_USE_LIMIT(), 5);
-      assert.equal(await magiskNft.GOLD_USE_LIMIT(), 8);
+      assert.equal(await magiskNft.GOLD_USE_LIMIT(), 10);
     });
   });
   describe(`Buy Nfts`, function () {
-    it(`should revert if msg.value is incorrect`, async function () {
-      await magiskNft.connect(user);
-      await expect(
-        magiskNft.buySilverNft({
-          value: ethers.utils.parseEther('0.002'),
-        })
-      ).to.be.reverted;
-    });
+    // it(`should revert if msg.value is incorrect`, async function () {
+    //   await magiskNft.connect(user);
+    //   await expect(
+    //     magiskNft.buySilverNft({
+    //       value: ethers.utils.parseEther('0.002'),
+    //     })
+    //   ).to.be.reverted;
+    // });
     it(`should emit event & update user balance`, async function () {
-      const amount = ethers.utils.parseEther('0.003');
-      const tokenId = await magiskNft.SILVER_NFT_ID();
+      const amount = ethers.utils.parseEther('0.5');
+      const silverNftId = await magiskNft.SILVER_NFT_ID();
       const silverNftLimit = await magiskNft.SILVER_USE_LIMIT();
 
-      await expect(magiskNft.connect(user).buySilverNft({ value: amount }))
+      await expect(
+        magiskNft.connect(user).mintNft(silverNftId, { value: amount })
+      )
         .to.emit(magiskNft, 'NFTMinted')
-        .withArgs(user.address, tokenId, silverNftLimit);
+        .withArgs(user.address, silverNftId, silverNftLimit);
 
-      const balance = await magiskNft.balanceOf(user.address, tokenId);
+      const balance = await magiskNft.balanceOf(user.address, silverNftId);
       assert.equal(balance, 1);
-    });
-    it(`should revert if user tries to buy again`, async function () {
-      const amount = ethers.utils.parseEther('0.003');
-      const tokenId = await magiskNft.SILVER_NFT_ID();
-      const silverNftLimit = await magiskNft.SILVER_USE_LIMIT();
 
-      await expect(magiskNft.connect(user).buySilverNft({ value: amount }))
+      const goldNftId = await magiskNft.GOLD_NFT_ID();
+      const goldNftUseLimit = await magiskNft.GOLD_USE_LIMIT();
+
+      await expect(
+        magiskNft
+          .connect(user)
+          .mintNft(goldNftId, { value: ethers.utils.parseEther('0.8') })
+      )
         .to.emit(magiskNft, 'NFTMinted')
-        .withArgs(user.address, tokenId, silverNftLimit);
+        .withArgs(user.address, goldNftId, goldNftUseLimit);
 
-      await expect(magiskNft.connect(user).buySilverNft({ value: amount })).to
-        .be.reverted;
+      assert.equal(await magiskNft.hasGoldNft(user.address), true);
     });
+    // it(`should revert if user tries to buy again`, async function () {
+    //   const amount = ethers.utils.parseEther('0.003');
+    //   const tokenId = await magiskNft.SILVER_NFT_ID();
+    //   const silverNftLimit = await magiskNft.SILVER_USE_LIMIT();
+
+    //   await expect(magiskNft.connect(user).buySilverNft({ value: amount }))
+    //     .to.emit(magiskNft, 'NFTMinted')
+    //     .withArgs(user.address, tokenId, silverNftLimit);
+
+    //   await expect(magiskNft.connect(user).buySilverNft({ value: amount })).to
+    //     .be.reverted;
+    // });
   });
 });

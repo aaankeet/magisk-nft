@@ -11,19 +11,20 @@ import "@openzeppelin/contracts/access/Ownable.sol";
     This is a Erc1155 nft contract, users can buy 2 types of nfts Silver and Gold.
     Silver nft has 5 use limit and Gold has 10 use limit 
     User's can use these nft in bunch of ways for example to get access to some sepcial event,
-    claim items, free rides, celebrity interactions and what not.
+    claim items, celebrity interactions and what not.
     User's can only own 1 of each nft no duplicates(1 silver, 1 gold).
-    Once they exhaust their nfts it will be burned.
-    In order to enjoy perks associated with the nft they have to buy again.
-    
+    When Holder Completely Exhausts their Nfts they can refill their nfts
+    In order to continue enjoying perks associated with the nft.
 
-    Additional Features :
-    1. Cooldown can be added after each use.
-    2. Nft forging may be added Silver + Gold = Platinum ( with more perks).
-    3. Can be used to sponser transcation fee(paymasters) for smart contract wallets (Account abstraction).
+    This creates far more utility and keeps holders engaging in buying and refilling their nfts
+
+    & also there are endless uses cases.
     
 */
-
+/**
+ * @title MagiskNft
+ * @author aaankeet
+ */
 contract MagiskNft is ERC1155, Ownable {
     string public constant NAME = "Magisk Nft";
     string public constant SYMBOL = "MAGISK";
@@ -33,51 +34,77 @@ contract MagiskNft is ERC1155, Ownable {
     uint8 public constant GOLD_NFT_ID = 1;
 
     // Price for both silver and gold nft
-    uint256 public constant SILVER_NFT_PRICE = 0.003 ether;
-    uint256 public constant GOLD_NFT_PRICE = 0.005 ether;
+    uint256 public constant SILVER_NFT_PRICE = 0.5 ether;
+    uint256 public constant GOLD_NFT_PRICE = 0.8 ether;
 
     // Use Limit for Silver and Gold Nft
     uint8 public constant SILVER_USE_LIMIT = 5;
-    uint8 public constant GOLD_USE_LIMIT = 8;
+    uint8 public constant GOLD_USE_LIMIT = 10;
 
-    // address --> tokenId --> use limit
+    // Cooldown can utilized after every nft use
+    uint32 public constant cooldown = 24 hours;
+    bool public isCooldown;
+
+    // address --> tokenId --> NFT Limit
     // to track user's token use limit
     mapping(address => mapping(uint8 => uint8)) private userNftUseLimit;
 
     mapping(address => bool) public hasSilverNft;
     mapping(address => bool) public hasGoldNft;
+    mapping(address => uint32) public lastInteraction;
 
     // Events
-    event NFTMinted(address indexed account, uint tokenId, uint limitAvailable);
-    event NFTUsed(address indexed account, uint tokenId, uint limitAvailable);
+    event NFTMinted(address account, uint tokenId, uint limitAvailable);
+    event NFTUsed(address indexed user, uint256 id, uint limitAvailable);
 
     constructor() ERC1155("") {}
 
-    // Buy Silver Nft
-    function buySilverNft() public payable {
-        require(!hasSilverNft[msg.sender], "Already owns a silver nft");
-        require(msg.value >= SILVER_NFT_PRICE, "Incorrect payment amount");
-
-        hasSilverNft[msg.sender] = true;
-        userNftUseLimit[msg.sender][SILVER_NFT_ID] = SILVER_USE_LIMIT;
-
-        _mint(msg.sender, SILVER_NFT_ID, 1, "");
-        emit NFTMinted(msg.sender, SILVER_NFT_ID, SILVER_USE_LIMIT);
+    // Cooldown modifier
+    // to make sure user can only use nft once in 24 hours
+    modifier cooldownEnabled() {
+        if (isCooldown) {
+            require(
+                block.timestamp >= lastInteraction[msg.sender] + cooldown,
+                "Available after 24 Hours"
+            );
+        }
+        _;
+        lastInteraction[msg.sender] = uint32(block.timestamp);
     }
 
-    // Buy Gold Nft
-    function buyGoldNft() public payable {
-        require(!hasGoldNft[msg.sender], "Already Owns a Gold Nft");
-        require(msg.value >= GOLD_NFT_PRICE, "Incorrect payment amount");
+    /**
+     * @param tokenId - 0 is Silver 1 is Gold
+     */
+    function mintNft(uint8 tokenId) public payable {
+        require(tokenId == 0 || tokenId == 1, "Invalid Token Id");
 
-        hasGoldNft[msg.sender] = true;
-        userNftUseLimit[msg.sender][GOLD_NFT_ID] = GOLD_USE_LIMIT;
+        if (tokenId == 0) {
+            require(!hasSilverNft[msg.sender], "Already owns a silver nft");
+            require(msg.value >= SILVER_NFT_PRICE, "Incorrect payment amount");
 
-        _mint(msg.sender, GOLD_NFT_ID, 1, "");
-        emit NFTMinted(msg.sender, GOLD_NFT_ID, GOLD_USE_LIMIT);
+            hasSilverNft[msg.sender] = true;
+            userNftUseLimit[msg.sender][SILVER_NFT_ID] = SILVER_USE_LIMIT;
+            _mint(msg.sender, SILVER_NFT_ID, 1, "");
+
+            emit NFTMinted(msg.sender, tokenId, SILVER_USE_LIMIT);
+        }
+        if (tokenId == 1) {
+            require(!hasGoldNft[msg.sender], "Already owns a silver nft");
+            require(msg.value >= GOLD_NFT_PRICE, "Incorrect payment amount");
+
+            hasGoldNft[msg.sender] = true;
+            userNftUseLimit[msg.sender][GOLD_NFT_ID] = GOLD_USE_LIMIT;
+            _mint(msg.sender, GOLD_NFT_ID, 1, "");
+
+            emit NFTMinted(msg.sender, tokenId, GOLD_USE_LIMIT);
+        }
     }
 
-    function useNFT(uint8 tokenId) public {
+    /**
+     * @param tokenId - 0 is Silver 1 is Gold
+     */
+
+    function useNFT(uint8 tokenId) public cooldownEnabled {
         require(tokenId == 0 || tokenId == 1, "Invalid Token id");
         require(
             userNftUseLimit[msg.sender][tokenId] > 0,
@@ -94,24 +121,41 @@ contract MagiskNft is ERC1155, Ownable {
                 currentTokenId
             ]--;
             emit NFTUsed(msg.sender, currentTokenId, currentUseLimit);
-            if (userNftUseLimit[msg.sender][currentTokenId] == 0) {
-                // Nft use limit exhausted
-                hasSilverNft[msg.sender] = false;
-                // burn user's nft after exhausting use limit
-                _burn(msg.sender, currentTokenId, 1);
-            }
-            // Else its Gold nft
         } else {
             uint256 currentUseLimit = userNftUseLimit[msg.sender][
                 currentTokenId
             ]--;
             emit NFTUsed(msg.sender, currentTokenId, currentUseLimit);
-            if (userNftUseLimit[msg.sender][currentTokenId] == 0) {
-                // Nft use limit exhausted
-                hasGoldNft[msg.sender] = false;
-                // burn user's nft after exhausting use limit
-                _burn(msg.sender, currentTokenId, 1);
-            }
+        }
+    }
+
+    /**
+     * @notice refill nft when use limit is exhausted
+     * @param tokenId - 0 is Silver 1 is Gold
+     */
+    function refill(uint8 tokenId) external payable {
+        require(tokenId == 0 || tokenId == 1, "Invalid Token Id");
+
+        if (tokenId == 0) {
+            require(hasSilverNft[msg.sender], "Nft Not Found");
+            require(
+                userNftUseLimit[msg.sender][tokenId] == 0,
+                "Refill Not Needed"
+            );
+            require(msg.value == SILVER_NFT_PRICE, "Insufficient Amount");
+
+            // Update silver nft use limit
+            userNftUseLimit[msg.sender][tokenId] = SILVER_USE_LIMIT;
+        } else {
+            require(hasGoldNft[msg.sender], "Nft Not Found");
+            require(
+                userNftUseLimit[msg.sender][tokenId] == 0,
+                "Refill Not Needed"
+            );
+            require(msg.value == GOLD_NFT_PRICE, "Insufficient Amount");
+
+            // Update gold nft use limit
+            userNftUseLimit[msg.sender][tokenId] = GOLD_USE_LIMIT;
         }
     }
 
@@ -145,11 +189,24 @@ contract MagiskNft is ERC1155, Ownable {
             );
     }
 
-    // Get User's Nft Limit
+    /**
+     * @param user - address to query for
+     * @param tokenId - nft id, 0 for silver 1 for gold
+     */
     function getUserNFTLimit(
         address user,
         uint8 tokenId
     ) public view returns (uint8) {
         return userNftUseLimit[user][tokenId];
+    }
+
+    function withdraw() external onlyOwner {
+        (bool sent, ) = msg.sender.call{value: address(this).balance}("");
+        require(sent, "Tx Failed");
+    }
+
+    // toggle cooldown
+    function toggleCooldown(bool _value) external onlyOwner {
+        isCooldown = _value;
     }
 }

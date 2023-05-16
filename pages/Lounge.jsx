@@ -14,7 +14,7 @@ function Lounge() {
       <div>
         <h1 className='head_text pb-3 '>Welcome to the Lounge</h1>
 
-        <h2 className='desc mt-2'>
+        <h2 className='desc mt-2 '>
           Join the Exclusive NFT Holder Lounge for Web3 Discussions and
           Networking
         </h2>
@@ -27,7 +27,7 @@ function Lounge() {
         </p>
         <br />
 
-        <div className='flex text-white justify-evenly mt-10 pt-14'>
+        <div className='flex text-grey justify-evenly mt-10 pt-14'>
           <h1 className=' text-4xl font-LeagueSpartan'>Chat</h1>
           <h1 className='text-4xl font-LeagueSpartan'>Connect</h1>
           <h1 className='text-4xl font-LeagueSpartan'>Level-Up</h1>

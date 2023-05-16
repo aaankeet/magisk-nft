@@ -10,7 +10,7 @@
 }
 
 .desc {
-  @apply text-xl text-white font-LeagueSpartan text-center antialiased;
+  @apply text-xl text-black font-LeagueSpartan text-center antialiased;
 }
 
 .boxshadow {
@@ -22,4 +22,29 @@
 }
 .btn:hover {
   @apply text-white  bg-[#03e9f4] boxshadow;
+}
+
+.circle {
+  width: 450px;
+  height: 450px;
+  background: linear-gradient(to bottom, #fa39ad 40%, #fe6c4c 50%);
+  filter: blur(100px);
+}
+.image-container {
+  position: relative;
+}
+
+.image-container img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.2s ease-in-out;
+}
+
+.image-container img:hover {
+  transform: scale(1.1);
+}
+
+.button {
+  @apply bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded;
 }
